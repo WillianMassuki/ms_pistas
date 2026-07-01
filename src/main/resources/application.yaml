@@ -1,8 +1,9 @@
 spring:
   application:
     name: ms_pistas
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/pistas
+    url: jdbc:postgresql://postgres_pistas:5432/pistas
     username: postgres
     password: root
     driver-class-name: org.postgresql.Driver

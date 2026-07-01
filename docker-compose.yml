@@ -1,0 +1,59 @@
+version: '3.9'
+
+services:
+
+  postgres_pistas:
+    image: postgres:17
+    container_name: postgres_pistas
+
+    restart: always
+
+    environment:
+      POSTGRES_DB: pistas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_pistas_data:/var/lib/postgresql/data
+
+    networks:
+      - pistas-network
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pistas"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ms_pistas:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: ms_pistas
+
+    depends_on:
+      postgres_pistas:
+        condition: service_healthy
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_pistas:5432/pistas
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+
+    restart: unless-stopped
+
+    networks:
+      - pistas-network
+
+networks:
+  pistas-network:
+
+volumes:
+  postgres_pistas_data:
